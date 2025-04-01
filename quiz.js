@@ -10,6 +10,7 @@ const quizQuestions = [
             "C) declare myVariable = 10;",
             "D) let = myVariable 10;"
         ],
+        //the corect answer is shown using the index position
         correctAnswer: 0 // A) var myVariable = 10;
     },
     {
@@ -94,11 +95,7 @@ let questionsContainer = document.getElementById('questions');
 questionsContainer.innerHTML = '' ;// To clear existing content
 
 
-let listElement = document.createElement('ol'); // creating a list to the arrays
-
-let submitBtn = document.getElementById('btn');
-submitBtn.addEventListener('click', checkAnswers);
-
+ let listElement = document.createElement('ol'); // creating a list to the arrays
 
 quizQuestions.forEach((quizQuestion, index) => {
     let listItem = document.createElement('li');
@@ -131,38 +128,41 @@ quizQuestions.forEach((quizQuestion, index) => {
 });
 questionsContainer.appendChild(listElement); // append everything onto the main container for rendering onto the browser
 
-
 //checking for the answer
 function checkAnswers() {
     let correctScore = 0;
+    let allAnswered = true; // Flag to track if all questions are answered
+    let errorMessage = document.getElementById('error');
+
+    // Clear any previous error message
+    if (errorMessage) {
+        errorMessage.textContent = '';
+    }
 
     quizQuestions.forEach((quizQuestion, index) => {
         // Get the selected input for the current question
-        let options = document.querySelectorAll(`input[name="question-${index}"]`);
         let userInput = document.querySelector(`input[name="question-${index}"]:checked`);
 
-        //
-        options.forEach(option =>{
-            const label = option.parentNode; //label conataining the input
-            label.style.color = 'initial' // resets color before marking
-
-            if(Number(option.value) === quizQuestion.correctAnswer){
-                label.style.color = 'green';
-            }
-            if(userInput && Number(userInput.value) !== quizQuestion.correctAnswer && option === userInput){
-                label.style.color = 'red';
-            }
-        })
-        
-        // Check if the selected answer is correct
-        if (userInput && userInput.value === quizQuestion.correctAnswer) {
+        // Check if the question is unanswered
+        if (!userInput) {
+            allAnswered = false;
+        } else if (Number(userInput.value) === quizQuestion.correctAnswer) {
+            // Increment score if the answer is correct
             correctScore++;
         }
     });
 
+    // If not all questions are answered, display an error and stop execution
+    if (!allAnswered) {
+        if (errorMessage) {
+            errorMessage.textContent = 'You need to Answer all Questions';
+        }
+        return; // Exit the function early
+    }
+
     // Provide feedback to the user
-    let feedbackDiv = document.getElementById('feedbackContainer');
-    feedbackDiv.textContent = `You got ${correctScore} out of ${quizQuestions.length} correct!`;
-    questionsContainer.appendChild(feedbackDiv)
-    
+    alert(`You got ${correctScore} out of ${quizQuestions.length} correct!`);
+
 }
+
+document.getElementById('btn').addEventListener('click', checkAnswers); // add an event Listener  to the submit button to check the answers
